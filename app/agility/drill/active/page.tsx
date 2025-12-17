@@ -155,7 +155,7 @@ export default function ActiveDrillPage() {
       max_start_delay: config.maxStartDelay,
       total_time_ms: totalTime,
       total_reps_completed: reps.length,
-      is_ranked: config.course.is_official,
+      is_ranked: config.course.is_official ?? false,
       completed_at: new Date().toISOString(),
       notes: null,
       rpe: null,
