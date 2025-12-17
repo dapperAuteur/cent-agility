@@ -6,18 +6,21 @@ import type { PendingSession } from '@/lib/types/agility.types';
 
 export default function VictoryCardPage() {
   const router = useRouter();
-  const [session, setSession] = useState<PendingSession | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Initialize state directly from sessionStorage
+  const [session] = useState<PendingSession | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const sessionJson = sessionStorage.getItem('agility_completed_session');
+    if (!sessionJson) return null;
+    return JSON.parse(sessionJson);
+  });
 
   useEffect(() => {
-    const sessionJson = sessionStorage.getItem('agility_completed_session');
-    if (!sessionJson) {
+    if (!session) {
       router.push('/agility/drill/setup');
-      return;
     }
-    
-    setSession(JSON.parse(sessionJson));
-  }, [router]);
+  }, [session, router]);
 
   async function handleShare() {
     if (!session) return;
@@ -59,7 +62,7 @@ export default function VictoryCardPage() {
       {/* Victory Card */}
       <div 
         ref={cardRef}
-        className="w-full max-w-md bg-gradient-to-br from-lime-400 to-green-600 rounded-3xl p-8 shadow-2xl"
+        className="w-full max-w-md bg-linear-to-br from-lime-400 to-green-600 rounded-3xl p-8 shadow-2xl"
       >
         {/* Header */}
         <div className="text-center mb-6">

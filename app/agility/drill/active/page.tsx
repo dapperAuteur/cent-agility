@@ -5,26 +5,17 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { agilityStorage } from '@/lib/db/agility-storage';
 import { syncWorker } from '@/lib/sync/agility-sync-worker';
-import { isDrillConfig } from '@/lib/types/agility.types';
 import type { DrillConfig, DrillState, PendingSession } from '@/lib/types/agility.types';
 
 export default function ActiveDrillPage() {
   const router = useRouter();
   const [config] = useState<DrillConfig | null>(() => {
-    // Lazy initialization to avoid extra render
-    if (typeof window === 'undefined') {
-      return null;
-    }
+    if (typeof window === 'undefined') return null;
     const configJson = sessionStorage.getItem('agility_drill_config');
-    if (!configJson) {
-      return null;
-    }
-    const parsedConfig = JSON.parse(configJson);
-    if (isDrillConfig(parsedConfig)) {
-      return parsedConfig;
-    }
-    return null;
+    if (!configJson) return null;
+    return JSON.parse(configJson);
   });
+  
   const [state, setState] = useState<DrillState>({
     phase: 'ready',
     currentSet: 1,
@@ -40,9 +31,10 @@ export default function ActiveDrillPage() {
   const [restCountdown, setRestCountdown] = useState(0);
 
   useEffect(() => {
-    // This effect now handles redirection and side-effects, not state initialization.
+    // Redirect if no config
     if (!config) {
       router.push('/agility/drill/setup');
+      return;
     }
 
     // Initialize Web Audio API
@@ -73,6 +65,15 @@ export default function ActiveDrillPage() {
     oscillator.start(now);
     oscillator.stop(now + duration / 1000);
   }, []);
+
+  // const speakCone = useCallback((coneNumber: number) => {
+  //   // Use Web Speech API (requires internet on some devices)
+  //   // For production, replace with pre-recorded audio files
+  //   const utterance = new SpeechSynthesisUtterance(`Cone ${coneNumber}`);
+  //   utterance.rate = 1.3;
+  //   utterance.volume = 1.0;
+  //   window.speechSynthesis.speak(utterance);
+  // }, []);
 
   const speakCone = useCallback((coneNumber: number) => {
     // Play pre-recorded audio
@@ -110,6 +111,77 @@ export default function ActiveDrillPage() {
     }, delay * 1000);
   }, [config, state.phase, playTone, speakCone]);
 
+  const startRestTimer = useCallback(() => {
+    if (!config) return;
+
+    setRestCountdown(config.restBetweenSets);
+    
+    restTimerRef.current = setInterval(() => {
+      setRestCountdown(prev => {
+        if (prev <= 1) {
+          // Rest complete
+          if (restTimerRef.current) clearInterval(restTimerRef.current);
+          
+          setState(prevState => ({
+            ...prevState,
+            phase: 'ready',
+            currentSet: prevState.currentSet + 1,
+            currentRep: 1,
+          }));
+          
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [config]);
+
+  const completeDrill = useCallback(async (reps: any[]) => {
+    if (!config) return;
+
+    const totalTime = reps[reps.length - 1].sprint_time_ms + 
+      reps[reps.length - 1].start_delay_ms;
+
+    const pendingSession: PendingSession = {
+      local_id: crypto.randomUUID(),
+      user_id: null, // TODO: Get from auth
+      course_id: config.course.id,
+      task_id: config.linkToTask || null,
+      goal_id: config.linkToGoal || null,
+      sets: config.sets,
+      reps_per_set: config.repsPerSet,
+      rest_between_sets: config.restBetweenSets,
+      min_start_delay: config.minStartDelay,
+      max_start_delay: config.maxStartDelay,
+      total_time_ms: totalTime,
+      total_reps_completed: reps.length,
+      is_ranked: config.course.is_official,
+      completed_at: new Date().toISOString(),
+      notes: null,
+      rpe: null,
+      shared_count: 0,
+      reps,
+      avg_sprint_time_ms: null,
+      sprint_variance: null
+    };
+
+    // Save to IndexedDB
+    try {
+      await agilityStorage.init(); // Ensure initialized
+      await agilityStorage.queueSession(pendingSession);
+      
+      // Trigger sync
+      syncWorker.syncNow();
+    } catch (error) {
+      console.error('Failed to queue session:', error);
+      // Continue to victory card anyway
+    }
+
+    // Navigate to victory card
+    sessionStorage.setItem('agility_completed_session', JSON.stringify(pendingSession));
+    router.push('/agility/drill/complete');
+  }, [config, router]);
+
   const handleReturn = useCallback(() => {
     if (!config || state.phase !== 'go' || !state.startTime || !state.targetCone) return;
 
@@ -142,71 +214,6 @@ export default function ActiveDrillPage() {
     const isSetComplete = state.currentRep === config.repsPerSet;
     const isDrillComplete = isSetComplete && state.currentSet === config.sets;
 
-    const startRestTimer = () => {
-    if (!config) return;
-
-    setRestCountdown(config.restBetweenSets);
-    
-    restTimerRef.current = setInterval(() => {
-      setRestCountdown(prev => {
-        if (prev <= 1) {
-          // Rest complete
-          if (restTimerRef.current) clearInterval(restTimerRef.current);
-          
-          setState(prevState => ({
-            ...prevState,
-            phase: 'ready',
-            currentSet: prevState.currentSet + 1,
-            currentRep: 1,
-          }));
-          
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-    const completeDrill = async (reps: any[]) => {
-    if (!config) return;
-
-    const totalTime = reps[reps.length - 1].sprint_time_ms + 
-      reps[reps.length - 1].start_delay_ms;
-
-    const pendingSession: PendingSession = {
-      local_id: crypto.randomUUID(),
-      user_id: null, // TODO: Get from auth
-      course_id: config.course.id,
-      task_id: config.linkToTask || null,
-      goal_id: config.linkToGoal || null,
-      sets: config.sets,
-      reps_per_set: config.repsPerSet,
-      rest_between_sets: config.restBetweenSets,
-      min_start_delay: config.minStartDelay,
-      max_start_delay: config.maxStartDelay,
-      total_time_ms: totalTime,
-      total_reps_completed: reps.length,
-      is_ranked: config.course.is_official,
-      completed_at: new Date().toISOString(),
-      notes: null,
-      rpe: null,
-      shared_count: 0,
-      reps,
-      avg_sprint_time_ms: null,
-      sprint_variance: null
-    };
-
-    // Save to IndexedDB
-    await agilityStorage.queueSession(pendingSession);
-
-    // Trigger sync
-    syncWorker.syncNow();
-
-    // Navigate to victory card
-    sessionStorage.setItem('agility_completed_session', JSON.stringify(pendingSession));
-    router.push('/agility/drill/complete');
-  };
-
     if (isDrillComplete) {
       // Drill finished
       completeDrill(newReps);
@@ -229,70 +236,9 @@ export default function ActiveDrillPage() {
         reps: newReps,
       }));
     }
-  }, [config, router, state.currentRep, state.currentSet, state.phase, state.reps, state.startTime, state.targetCone]);
+  }, [completeDrill, config, startRestTimer, state.currentRep, state.currentSet, state.phase, state.reps, state.startTime, state.targetCone]);
 
-  // const startRestTimer = useCallback(() => {
-  //   if (!config) return;
-
-  //   setRestCountdown(config.restBetweenSets);
-    
-  //   restTimerRef.current = setInterval(() => {
-  //     setRestCountdown(prev => {
-  //       if (prev <= 1) {
-  //         // Rest complete
-  //         if (restTimerRef.current) clearInterval(restTimerRef.current);
-          
-  //         setState(prevState => ({
-  //           ...prevState,
-  //           phase: 'ready',
-  //           currentSet: prevState.currentSet + 1,
-  //           currentRep: 1,
-  //         }));
-          
-  //         return 0;
-  //       }
-  //       return prev - 1;
-  //     });
-  //   }, 1000);
-  // }, [config]);
-
-  // const completeDrill = useCallback(async (reps: any[]) => {
-  //   if (!config) return;
-
-  //   const totalTime = reps[reps.length - 1].sprint_time_ms + 
-  //     reps[reps.length - 1].start_delay_ms;
-
-  //   const pendingSession: PendingSession = {
-  //     local_id: crypto.randomUUID(),
-  //     user_id: null, // TODO: Get from auth
-  //     course_id: config.course.id,
-  //     task_id: config.linkToTask || null,
-  //     goal_id: config.linkToGoal || null,
-  //     sets: config.sets,
-  //     reps_per_set: config.repsPerSet,
-  //     rest_between_sets: config.restBetweenSets,
-  //     min_start_delay: config.minStartDelay,
-  //     max_start_delay: config.maxStartDelay,
-  //     total_time_ms: totalTime,
-  //     total_reps_completed: reps.length,
-  //     is_ranked: config.course.is_official,
-  //     completed_at: new Date().toISOString(),
-  //     notes: null,
-  //     rpe: null,
-  //     shared_count: 0,
-  //     reps,
-  //   };
-
-  //   // Save to IndexedDB
-  //   await agilityStorage.queueSession(pendingSession);
-
-  //   // Trigger sync
-  //   syncWorker.syncNow();
-
-  //   // Navigate to victory card
-  //   sessionStorage.setItem('agility_completed_session', JSON.stringify(pendingSession));
-  //   router.push('/agility/drill/complete');
-  // }, [config, router]);
+  
 
   if (!config) {
     return (

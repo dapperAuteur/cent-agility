@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * IndexedDB Storage for Agility Engine
  * Handles offline session storage and sync queue

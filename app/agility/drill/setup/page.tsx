@@ -21,13 +21,30 @@ export default function DrillSetupPage() {
   });
 
   useEffect(() => {
+    async function initAndLoadCourses() {
+    try {
+      await agilityStorage.init();
+    } catch (err) {
+      console.warn('Storage init failed, continuing without cache:', err);
+    }
     loadCourses();
+  }
+  
+    initAndLoadCourses();
   }, []);
+
+  
 
   async function loadCourses() {
     try {
       // Try IndexedDB cache first
-      const cached = await agilityStorage.getCachedCourses();
+      let cached: AgilityCourse[] = [];
+      try {
+        cached = await agilityStorage.getCachedCourses();
+      } catch (err) {
+        // Cache unavailable, continue
+        console.log('err :>> ', err);
+      }
       
       if (cached.length > 0) {
         setCourses(cached);
@@ -219,7 +236,7 @@ export default function DrillSetupPage() {
           <ul className="space-y-2 text-sm">
             <li>
               <span className="text-gray-400">Total reps:</span>{' '}
-              <span className="font-bold">{config.sets × config.repsPerSet}</span>
+              <span className="font-bold">{config.sets * config.repsPerSet}</span>
             </li>
             <li>
               <span className="text-gray-400">Estimated time:</span>{' '}
