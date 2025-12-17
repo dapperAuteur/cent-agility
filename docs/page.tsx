@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { AgilityCourse, LeaderboardEntry } from '@/lib/types/agility.types';
-import Image from 'next/image';
 
 type RankingMetric = 'speed' | 'consistency';
 
@@ -19,27 +18,6 @@ export default function LeaderboardPage() {
   }, []);
 
   useEffect(() => {
-
-    async function loadLeaderboard() {
-    if (!selectedCourse) return;
-
-    setLoading(true);
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase.rpc('get_agility_leaderboard', {
-        p_course_id: selectedCourse,
-        p_limit: 100,
-        p_metric: metric,
-      });
-
-      if (error) throw error;
-      setEntries(data || []);
-    } catch (error) {
-      console.error('Failed to load leaderboard:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
     if (selectedCourse) {
       loadLeaderboard();
     }
@@ -62,6 +40,27 @@ export default function LeaderboardPage() {
       }
     } catch (error) {
       console.error('Failed to load courses:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadLeaderboard() {
+    if (!selectedCourse) return;
+
+    setLoading(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.rpc('get_agility_leaderboard', {
+        p_course_id: selectedCourse,
+        p_limit: 100,
+        p_metric: metric,
+      });
+
+      if (error) throw error;
+      setEntries(data || []);
+    } catch (error) {
+      console.error('Failed to load leaderboard:', error);
     } finally {
       setLoading(false);
     }
@@ -187,7 +186,7 @@ export default function LeaderboardPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         {entry.profile_image_url && (
-                          <Image
+                          <img
                             src={entry.profile_image_url}
                             alt={entry.username}
                             className="w-8 h-8 rounded-full"
@@ -235,7 +234,7 @@ export default function LeaderboardPage() {
               Only official courses appear on leaderboard
             </li>
             <li>
-              Custom courses are great for practice but aren&apos;t ranked
+              Custom courses are great for practice but aren't ranked
             </li>
           </ul>
         </div>
