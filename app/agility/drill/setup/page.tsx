@@ -62,11 +62,13 @@ export default function DrillSetupPage() {
       if (error) throw error;
 
       if (data) {
-        setCourses(data);
-        await agilityStorage.cacheCourses(data);
+        // Cast to AgilityCourse type
+        const typedData = data as unknown as AgilityCourse[];
+        setCourses(typedData);
+        await agilityStorage.cacheCourses(typedData);
         
         if (cached.length === 0) {
-          setSelectedCourse(data.find(c => c.is_official) || data[0]);
+          setSelectedCourse(typedData.find(c => c.is_official) || typedData[0]);
         }
       }
     } catch (error) {

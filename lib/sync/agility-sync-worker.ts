@@ -4,6 +4,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '../types/database.types';
 import { agilityStorage } from '../db/agility-storage';
 import type { PendingSession } from '../types/agility.types';
 
@@ -13,13 +14,13 @@ const MAX_RETRIES = 5;
 class AgilitySyncWorker {
   private syncIntervalId: NodeJS.Timeout | null = null;
   private isSyncing = false;
-  private supabase: ReturnType<typeof createClient> | null = null;
+  private supabase: ReturnType<typeof createClient<Database>> | null = null;
 
   /**
    * Initialize worker with Supabase client
    */
   init(supabaseUrl: string, supabaseAnonKey: string) {
-    this.supabase = createClient(supabaseUrl, supabaseAnonKey);
+    this.supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
   }
 
   /**
