@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { agilityStorage } from '@/lib/db/agility-storage';
-import type { AgilityCourse, DrillConfig } from '@/lib/types/agility.types';
+import { toAgilityCourse, type AgilityCourse, type DrillConfig } from '@/lib/types/agility.types';
 import { useRouter } from 'next/navigation';
 
 export default function DrillSetupPage() {
@@ -22,18 +22,16 @@ export default function DrillSetupPage() {
 
   useEffect(() => {
     async function initAndLoadCourses() {
-    try {
-      await agilityStorage.init();
-    } catch (err) {
-      console.warn('Storage init failed, continuing without cache:', err);
+      try {
+        await agilityStorage.init();
+      } catch (err) {
+        console.warn('Storage init failed, continuing without cache:', err);
+      }
+      loadCourses();
     }
-    loadCourses();
-  }
-  
+    
     initAndLoadCourses();
   }, []);
-
-  
 
   async function loadCourses() {
     try {
@@ -42,7 +40,6 @@ export default function DrillSetupPage() {
       try {
         cached = await agilityStorage.getCachedCourses();
       } catch (err) {
-        // Cache unavailable, continue
         console.log('err :>> ', err);
       }
       
@@ -62,8 +59,7 @@ export default function DrillSetupPage() {
       if (error) throw error;
 
       if (data) {
-        // Cast to AgilityCourse type
-        const typedData = data as unknown as AgilityCourse[];
+        const typedData = data.map(toAgilityCourse);
         setCourses(typedData);
         await agilityStorage.cacheCourses(typedData);
         
@@ -86,7 +82,6 @@ export default function DrillSetupPage() {
       ...config,
     };
 
-    // Store in sessionStorage for drill page
     sessionStorage.setItem('agility_drill_config', JSON.stringify(drillConfig));
     router.push('/agility/drill/active');
   }
@@ -102,7 +97,6 @@ export default function DrillSetupPage() {
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
         <header className="mb-8">
           <h1 className="text-5xl font-bold text-lime-400 mb-2">
             AGILITY ENGINE
@@ -110,7 +104,6 @@ export default function DrillSetupPage() {
           <p className="text-gray-400">Configure your reaction drill</p>
         </header>
 
-        {/* Course Selection */}
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-lime-400 mb-4">
             Select Course
@@ -147,18 +140,14 @@ export default function DrillSetupPage() {
           </div>
         </section>
 
-        {/* Drill Configuration */}
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-lime-400 mb-4">
             Configure Drill
           </h2>
 
           <div className="space-y-4">
-            {/* Sets */}
             <div>
-              <label className="block text-sm font-semibold mb-2">
-                Sets
-              </label>
+              <label className="block text-sm font-semibold mb-2">Sets</label>
               <input
                 type="number"
                 min="1"
@@ -169,11 +158,8 @@ export default function DrillSetupPage() {
               />
             </div>
 
-            {/* Reps per Set */}
             <div>
-              <label className="block text-sm font-semibold mb-2">
-                Reps per Set
-              </label>
+              <label className="block text-sm font-semibold mb-2">Reps per Set</label>
               <input
                 type="number"
                 min="1"
@@ -184,11 +170,8 @@ export default function DrillSetupPage() {
               />
             </div>
 
-            {/* Rest Between Sets */}
             <div>
-              <label className="block text-sm font-semibold mb-2">
-                Rest Between Sets (seconds)
-              </label>
+              <label className="block text-sm font-semibold mb-2">Rest Between Sets (seconds)</label>
               <input
                 type="number"
                 min="10"
@@ -200,12 +183,9 @@ export default function DrillSetupPage() {
               />
             </div>
 
-            {/* Start Delay Range */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Min Start Delay (s)
-                </label>
+                <label className="block text-sm font-semibold mb-2">Min Start Delay (s)</label>
                 <input
                   type="number"
                   min="1"
@@ -216,9 +196,7 @@ export default function DrillSetupPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Max Start Delay (s)
-                </label>
+                <label className="block text-sm font-semibold mb-2">Max Start Delay (s)</label>
                 <input
                   type="number"
                   min="1"
@@ -232,7 +210,6 @@ export default function DrillSetupPage() {
           </div>
         </section>
 
-        {/* Summary */}
         <section className="mb-8 p-6 bg-lime-400/10 border-2 border-lime-400 rounded-xl">
           <h3 className="text-lg font-bold mb-3">Drill Summary</h3>
           <ul className="space-y-2 text-sm">
@@ -261,7 +238,6 @@ export default function DrillSetupPage() {
           </ul>
         </section>
 
-        {/* Start Button */}
         <button
           onClick={startDrill}
           disabled={!selectedCourse}

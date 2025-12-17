@@ -3,6 +3,8 @@
  * Auto-generated from Supabase schema
  */
 
+import type { Database } from './database.types';
+
 export interface ConePosition {
   number: number;
   distance: number; // meters
@@ -15,10 +17,10 @@ export interface AgilityCourse {
   description: string | null;
   cone_count: number;
   cone_positions: ConePosition[];
-  is_official: boolean;
+  is_official: boolean | null;
   created_by: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface AgilitySession {
@@ -135,4 +137,15 @@ export function isDrillConfig(obj: unknown): obj is DrillConfig {
     typeof config.maxStartDelay === 'number' &&
     Array.isArray(config.course.cone_positions)
   );
+}
+
+// Helper to convert Supabase row to AgilityCourse
+export function toAgilityCourse(row: Database['public']['Tables']['agility_courses']['Row']): AgilityCourse {
+  return {
+    ...row,
+    cone_positions: row.cone_positions as unknown as ConePosition[],
+    is_official: row.is_official ?? false,
+    created_at: row.created_at || new Date().toISOString(),
+    updated_at: row.updated_at || new Date().toISOString(),
+  };
 }
