@@ -84,6 +84,38 @@ export interface LeaderboardEntry {
   rank?: number; // Added by query
 }
 
+// RPC function return type
+export interface LeaderboardRPCResult {
+  rank: number;
+  username: string;
+  profile_image_url: string;
+  best_time_ms: number;
+  avg_sprint_ms: number;
+  variance: number;
+  total_reps: number;
+  completed_at: string;
+}
+
+// Convert RPC result to LeaderboardEntry
+export function toLeaderboardEntry(rpc: LeaderboardRPCResult): LeaderboardEntry {
+  return {
+    id: '', // Not provided by RPC
+    user_id: '', // Not provided by RPC
+    course_id: '', // Not provided by RPC
+    session_id: '', // Not provided by RPC
+    username: rpc.username,
+    profile_image_url: rpc.profile_image_url,
+    best_total_time_ms: rpc.best_time_ms,
+    best_cone_times: {},
+    avg_sprint_time_ms: rpc.avg_sprint_ms,
+    sprint_variance: rpc.variance,
+    total_reps: rpc.total_reps,
+    completed_at: rpc.completed_at,
+    updated_at: rpc.completed_at,
+    rank: rpc.rank,
+  };
+}
+
 // Local-only types for offline queue
 export interface PendingSession extends Omit<AgilitySession, 'id' | 'created_at' | 'synced_at'> {
   local_id: string; // UUID generated client-side

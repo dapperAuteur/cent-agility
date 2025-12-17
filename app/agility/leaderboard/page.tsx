@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import type { AgilityCourse, LeaderboardEntry } from '@/lib/types/agility.types';
+// import type { AgilityCourse, LeaderboardEntry } from '@/lib/types/agility.types';
+import { toAgilityCourse, toLeaderboardEntry, type AgilityCourse, type LeaderboardEntry } from '@/lib/types/agility.types';
+import Image from 'next/image';
 
 type RankingMetric = 'speed' | 'consistency';
 
@@ -18,6 +20,27 @@ export default function LeaderboardPage() {
   }, []);
 
   useEffect(() => {
+    async function loadLeaderboard() {
+    if (!selectedCourse) return;
+
+    setLoading(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.rpc('get_agility_leaderboard', {
+        p_course_id: selectedCourse,
+        p_limit: 100,
+        p_metric: metric,
+      });
+
+      if (error) throw error;
+      setEntries((data || []).map(toLeaderboardEntry));
+    } catch (error) {
+      console.error('Failed to load leaderboard:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+  
     if (selectedCourse) {
       loadLeaderboard();
     }
@@ -35,8 +58,9 @@ export default function LeaderboardPage() {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        setCourses(data);
-        setSelectedCourse(data[0].id);
+        const typedCourses = data.map(toAgilityCourse);
+        setCourses(typedCourses);
+        setSelectedCourse(typedCourses[0].id);
       }
     } catch (error) {
       console.error('Failed to load courses:', error);
@@ -45,26 +69,7 @@ export default function LeaderboardPage() {
     }
   }
 
-  async function loadLeaderboard() {
-    if (!selectedCourse) return;
-
-    setLoading(true);
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase.rpc('get_agility_leaderboard', {
-        p_course_id: selectedCourse,
-        p_limit: 100,
-        p_metric: metric,
-      });
-
-      if (error) throw error;
-      setEntries(data || []);
-    } catch (error) {
-      console.error('Failed to load leaderboard:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  
 
   function formatTime(ms: number): string {
     const totalSeconds = ms / 1000;
@@ -186,7 +191,7 @@ export default function LeaderboardPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         {entry.profile_image_url && (
-                          <img
+                          <Image
                             src={entry.profile_image_url}
                             alt={entry.username}
                             className="w-8 h-8 rounded-full"
@@ -234,7 +239,7 @@ export default function LeaderboardPage() {
               Only official courses appear on leaderboard
             </li>
             <li>
-              Custom courses are great for practice but aren't ranked
+              Custom courses are great for practice but aren&apos;t ranked
             </li>
           </ul>
         </div>
