@@ -200,7 +200,7 @@ export default function ActiveDrillPage() {
         {state.phase === 'waiting' && (
           <div className="text-center">
             <div className="mb-8">
-              <div className="text-6xl mb-4 animate-pulse">👂</div>
+              <div className="text-6xl mb-4 animate-pulse">👂🏿</div>
               <h2 className="text-3xl font-bold mb-2 text-yellow-600">Wait for signal...</h2>
               <p className="text-gray-600">Stay focused</p>
             </div>
