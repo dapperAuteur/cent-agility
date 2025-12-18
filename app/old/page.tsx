@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { ArrowRight, Zap, Trophy, Users, TrendingUp, Calendar, Lock } from 'lucide-react';
-import CourseSlideshow from '@/components/agility/CourseSlideshow';
 
 export default function LandingPage() {
   return (
@@ -51,70 +50,25 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Course Slideshow & How It Works */}
-        <div className="mt-16 max-w-5xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            {/* Course Slideshow */}
-            <CourseSlideshow />
-
-            {/* Drill Steps */}
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">What You Do During Assessment</h3>
-              <ul className="space-y-4">
-                <li className="flex gap-3">
-                  <span className="shrink-0 w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-sm font-bold">1</span>
-                  <div>
-                    <p className="font-semibold text-gray-900">Stand at center position</p>
-                    <p className="text-sm text-gray-600">Place yourself at the START point equidistant from all cones</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="shrink-0 w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-sm font-bold">2</span>
-                  <div>
-                    <p className="font-semibold text-gray-900">Press START and wait for random delay</p>
-                    <p className="text-sm text-gray-600">Audio beep sounds after 2-5 seconds (tests your reaction time)</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="shrink-0 w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-sm font-bold">3</span>
-                  <div>
-                    <p className="font-semibold text-gray-900">Listen for audio callout</p>
-                    <p className="text-sm text-gray-600">Voice announces random cone number: &quot;Cone 3&quot;</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="shrink-0 w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-sm font-bold">4</span>
-                  <div>
-                    <p className="font-semibold text-gray-900">Sprint to cone and back</p>
-                    <p className="text-sm text-gray-600">Touch the called cone, return to center as fast as possible</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="shrink-0 w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-sm font-bold">5</span>
-                  <div>
-                    <p className="font-semibold text-gray-900">Press RETURN button</p>
-                    <p className="text-sm text-gray-600">App records your sprint time automatically</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="shrink-0 w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-sm font-bold">6</span>
-                  <div>
-                    <p className="font-semibold text-gray-900">Repeat for full set</p>
-                    <p className="text-sm text-gray-600">Complete 10 reps, rest 60 seconds, do 3 sets (customizable)</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="shrink-0 w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-sm font-bold">7</span>
-                  <div>
-                    <p className="font-semibold text-gray-900">View your results</p>
-                    <p className="text-sm text-gray-600">See total time, average speed, and your leaderboard ranking</p>
-                  </div>
-                </li>
-              </ul>
+        {/* Screenshot/Demo Preview */}
+        <div className="mt-16 max-w-4xl mx-auto">
+          <div className="bg-linear-to-br from-indigo-500 to-purple-600 rounded-2xl p-8 shadow-2xl">
+            <div className="bg-white rounded-xl overflow-hidden">
+              <div className="bg-gray-900 px-4 py-3 flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              </div>
+              <div className="aspect-video bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-8xl mb-4 animate-pulse">⚡</div>
+                  <p className="text-2xl font-bold text-gray-900">CONE 3</p>
+                  <p className="text-gray-600">Sprint! Press RETURN when back</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-          
       </section>
 
       {/* Features */}
@@ -309,35 +263,35 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm text-gray-600">
                 <li><Link href="/agility/drill/setup" className="hover:text-gray-900">Drills</Link></li>
                 <li><Link href="/agility/leaderboard" className="hover:text-gray-900">Leaderboard</Link></li>
-                {/* <li><Link href="#" className="hover:text-gray-900">Pricing</Link></li> */}
+                <li><Link href="#" className="hover:text-gray-900">Pricing</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-bold text-gray-900 mb-3">Company</h4>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link href="/" className="hover:text-gray-900">About</Link></li>
-                <li><Link href="https://i.brandanthonymcdonald.com/blog" className="hover:text-gray-900">Blog</Link></li>
-                <li><Link href="https://i.brandanthonymcdonald.com/portfolio" className="hover:text-gray-900">Contact</Link></li>
+                <li><Link href="#" className="hover:text-gray-900">About</Link></li>
+                <li><Link href="#" className="hover:text-gray-900">Blog</Link></li>
+                <li><Link href="#" className="hover:text-gray-900">Contact</Link></li>
               </ul>
             </div>
 
             <div>
-              {/* <h4 className="font-bold text-gray-900 mb-3">Legal</h4>
+              <h4 className="font-bold text-gray-900 mb-3">Legal</h4>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li><Link href="#" className="hover:text-gray-900">Privacy</Link></li>
                 <li><Link href="#" className="hover:text-gray-900">Terms</Link></li>
                 <li><Link href="#" className="hover:text-gray-900">Security</Link></li>
-              </ul> */}
+              </ul>
             </div>
           </div>
 
           <div className="border-t pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-600">
             <p>© 2025 Agility Engine. MIT License.</p>
             <div className="flex gap-6">
-              <Link href="https://i.brandanthonymcdonald.com/cent-agility-repo" className="hover:text-gray-900">GitHub</Link>
-              <Link href="https://i.brandanthonymcdonald.com/portfolio" className="hover:text-gray-900">BAM Page</Link>
-              <Link href="https://i.centenarianos.com/beta" className="hover:text-gray-900">Cent OS</Link>
+              <a href="https://github.com" className="hover:text-gray-900">GitHub</a>
+              <a href="https://twitter.com" className="hover:text-gray-900">Twitter</a>
+              <a href="https://discord.com" className="hover:text-gray-900">Discord</a>
             </div>
           </div>
         </div>
