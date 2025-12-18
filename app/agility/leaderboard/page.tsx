@@ -117,7 +117,7 @@ export default function LeaderboardPage() {
         <div className="mb-6">
           <label className="block text-sm font-semibold text-gray-700 mb-2">Course</label>
           <select value={selectedCourse || ''} onChange={(e) => setSelectedCourse(e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none text-base">
+            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none text-base text-gray-800">
             {courses.map(course => (<option key={course.id} value={course.id}>{course.name}</option>))}
           </select>
         </div>
