@@ -1,216 +1,301 @@
-'use client';
+import Link from 'next/link';
+import { ArrowRight, Zap, Trophy, Users, TrendingUp, Calendar, Lock } from 'lucide-react';
 
-import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { toAgilityCourse, toLeaderboardEntry, type AgilityCourse, type LeaderboardEntry } from '@/lib/types/agility.types';
-import Image from 'next/image';
-
-type RankingMetric = 'speed' | 'consistency';
-
-export default function LeaderboardPage() {
-  const [courses, setCourses] = useState<AgilityCourse[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-  const [metric, setMetric] = useState<RankingMetric>('speed');
-  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadCourses();
-  }, []);
-
-  useEffect(() => {
-    async function loadLeaderboard() {
-      if (!selectedCourse) return;
-
-      setLoading(true);
-      try {
-        const supabase = createClient();
-        const { data, error } = await supabase.rpc('get_agility_leaderboard', {
-          p_course_id: selectedCourse,
-          p_limit: 100,
-          p_metric: metric,
-        });
-
-        if (error) throw error;
-        setEntries((data || []).map(toLeaderboardEntry));
-      } catch (error) {
-        console.error('Failed to load leaderboard:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    
-    if (selectedCourse) {
-      loadLeaderboard();
-    }
-  }, [selectedCourse, metric]);
-
-  async function loadCourses() {
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from('agility_courses')
-        .select('*')
-        .eq('is_official', true)
-        .order('name');
-
-      if (error) throw error;
-
-      if (data && data.length > 0) {
-        const typedCourses = data.map(toAgilityCourse);
-        setCourses(typedCourses);
-        setSelectedCourse(typedCourses[0].id);
-      }
-    } catch (error) {
-      console.error('Failed to load courses:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function formatTime(ms: number): string {
-    const totalSeconds = ms / 1000;
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = (totalSeconds % 60).toFixed(1);
-    return minutes > 0 ? `${minutes}:${seconds.padStart(4, '0')}` : `${seconds}s`;
-  }
-
-  const selectedCourseName = courses.find(c => c.id === selectedCourse)?.name || '';
-
-  if (loading && courses.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-black">
-        <div className="animate-spin h-12 w-12 border-4 border-lime-600 border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-black text-white p-6">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-5xl font-bold text-lime-400 mb-2">LEADERBOARD</h1>
-          <p className="text-gray-400">Ranked official courses only</p>
-        </header>
+    <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
+      {/* Header */}
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">⚡</span>
+            <span className="text-xl font-bold text-gray-900">Agility Engine</span>
+          </div>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Link href="/agility/auth/signin" className="text-gray-600 hover:text-gray-900 font-semibold text-sm sm:text-base">
+              Sign In
+            </Link>
+            <Link href="/agility/auth/signup" className="px-4 sm:px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition text-sm sm:text-base">
+              Get Started
+            </Link>
+          </div>
+        </nav>
+      </header>
 
-        <div className="mb-6">
-          <label className="block text-sm font-semibold mb-2">Course</label>
-          <select
-            value={selectedCourse || ''}
-            onChange={(e) => setSelectedCourse(e.target.value)}
-            className="w-full px-4 py-3 bg-gray-900 border-2 border-gray-700 rounded-lg focus:border-lime-400 focus:outline-none"
-          >
-            {courses.map(course => (
-              <option key={course.id} value={course.id}>{course.name}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mb-8">
-          <div className="flex gap-3">
-            <button
-              onClick={() => setMetric('speed')}
-              className={`flex-1 py-3 rounded-lg font-bold transition ${
-                metric === 'speed' ? 'bg-lime-400 text-black' : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
-              }`}
-            >
-              🏃 Speed
-            </button>
-            <button
-              onClick={() => setMetric('consistency')}
-              className={`flex-1 py-3 rounded-lg font-bold transition ${
-                metric === 'consistency' ? 'bg-lime-400 text-black' : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
-              }`}
-            >
-              📊 Consistency
-            </button>
+      {/* Hero */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
+        <div className="text-center max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-full mb-6">
+            <Zap className="w-4 h-4 text-indigo-600" />
+            <span className="text-sm font-semibold text-indigo-600">Train Faster. React Quicker.</span>
+          </div>
+          
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-6">
+            Test Your Reaction Speed with
+            <span className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"> Timed Drills</span>
+          </h1>
+          
+          <p className="text-lg sm:text-xl text-gray-600 mb-8">
+            Sprint to numbered cones, compete on leaderboards, and track your improvement over time. Perfect for athletes, coaches, and anyone serious about speed training.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/agility/auth/signup" className="px-8 py-4 bg-indigo-600 text-white text-lg font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg flex items-center justify-center gap-2">
+              Start Training Free
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link href="/agility/drill/setup" className="px-8 py-4 bg-white text-gray-900 text-lg font-bold rounded-xl hover:bg-gray-50 transition border-2 border-gray-200">
+              Try Demo
+            </Link>
           </div>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin h-8 w-8 border-4 border-lime-600 border-t-transparent rounded-full" />
-          </div>
-        ) : entries.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🏁</div>
-            <h3 className="text-2xl font-bold mb-2">No entries yet</h3>
-            <p className="text-gray-400 mb-6">Be the first to complete {selectedCourseName}!</p>
-            <button
-              onClick={() => window.location.href = '/agility/drill/setup'}
-              className="px-6 py-3 bg-lime-400 text-black font-bold rounded-lg hover:bg-lime-300"
-            >
-              Start Drill
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {entries.map((entry, index) => {
-              const isTop3 = index < 3;
-              const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
-
-              return (
-                <div
-                  key={`${entry.username}-${index}`}
-                  className={`p-4 rounded-xl border-2 transition ${
-                    isTop3 ? 'border-lime-400 bg-lime-400/10' : 'border-gray-800 bg-gray-900'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="text-center w-16">
-                      {rankEmoji ? (
-                        <div className="text-3xl">{rankEmoji}</div>
-                      ) : (
-                        <div className="text-2xl font-bold text-gray-400">#{entry.rank}</div>
-                      )}
-                    </div>
-
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        {entry.profile_image_url && (
-                          <Image
-                            src={entry.profile_image_url}
-                            alt={entry.username}
-                            width={32}
-                            height={32}
-                            className="rounded-full"
-                          />
-                        )}
-                        <span className="font-bold text-lg">{entry.username}</span>
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        {entry.total_reps} reps · {new Date(entry.completed_at).toLocaleDateString()}
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-lime-400">
-                        {metric === 'speed' 
-                          ? formatTime(entry.best_total_time_ms)
-                          : entry.sprint_variance.toFixed(2) + 'ms'
-                        }
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {metric === 'speed' ? 'Total Time' : 'Variance'}
-                      </div>
-                    </div>
-                  </div>
+        {/* Screenshot/Demo Preview */}
+        <div className="mt-16 max-w-4xl mx-auto">
+          <div className="bg-linear-to-br from-indigo-500 to-purple-600 rounded-2xl p-8 shadow-2xl">
+            <div className="bg-white rounded-xl overflow-hidden">
+              <div className="bg-gray-900 px-4 py-3 flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              </div>
+              <div className="aspect-video bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-8xl mb-4 animate-pulse">⚡</div>
+                  <p className="text-2xl font-bold text-gray-900">CONE 3</p>
+                  <p className="text-gray-600">Sprint! Press RETURN when back</p>
                 </div>
-              );
-            })}
+              </div>
+            </div>
           </div>
-        )}
-
-        <div className="mt-8 p-6 bg-gray-900 rounded-xl border-2 border-gray-800">
-          <h3 className="font-bold mb-2">📋 How Rankings Work</h3>
-          <ul className="space-y-2 text-sm text-gray-400">
-            <li><strong className="text-white">Speed:</strong> Fastest total session time wins</li>
-            <li><strong className="text-white">Consistency:</strong> Lowest sprint variance wins</li>
-            <li>Only official courses appear on leaderboard</li>
-            <li>Custom courses are great for practice but aren&apos;t ranked</li>
-          </ul>
         </div>
-      </div>
+      </section>
+
+      {/* Features */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Why Athletes Choose Agility Engine
+            </h2>
+            <p className="text-lg text-gray-600">Everything you need to train smarter and faster</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="bg-white rounded-xl p-6 shadow-md">
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                <Trophy className="w-6 h-6 text-indigo-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Compete on Leaderboards</h3>
+              <p className="text-gray-600">
+                See how you rank against others on official courses. Track both speed and consistency metrics.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-md">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                <Users className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Challenge Friends Weekly</h3>
+              <p className="text-gray-600">
+                Create custom challenges, share results, and compete with your training partners.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-md">
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                <TrendingUp className="w-6 h-6 text-indigo-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Track Progress Over Time</h3>
+              <p className="text-gray-600">
+                Watch your times improve with detailed analytics on sprint speed and reaction time.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-md">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                <Zap className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Train Anywhere, Anytime</h3>
+              <p className="text-gray-600">
+                Offline-first design works in parks, gyms, or fields without internet connection.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-md">
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                <Calendar className="w-6 h-6 text-indigo-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Structured Training Plans</h3>
+              <p className="text-gray-600">
+                Follow guided drill programs designed for different skill levels and goals.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-md">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                <Lock className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Privacy First</h3>
+              <p className="text-gray-600">
+                Your data stays yours. Optional anonymous mode available. Control what you share.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Simple 3-Step Process
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                1
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Set Up Cones</h3>
+              <p className="text-gray-600">
+                Place numbered cones according to course diagram. Standard layouts or create custom.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                2
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Start Drill</h3>
+              <p className="text-gray-600">
+                Audio calls random cone numbers. Sprint there and back to center. Repeat.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                3
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Track & Compete</h3>
+              <p className="text-gray-600">
+                See your stats, climb leaderboards, and challenge friends to beat your time.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Coming Soon */}
+      <section className="py-20 bg-linear-to-br from-indigo-50 to-purple-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full mb-6 shadow-sm">
+            <span className="text-sm font-semibold text-indigo-600">Coming Soon</span>
+          </div>
+          
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+            More Features in Development
+          </h2>
+          
+          <div className="grid sm:grid-cols-2 gap-4 text-left mb-8">
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <p className="font-semibold text-gray-900">📹 Video Recording</p>
+              <p className="text-sm text-gray-600">Capture drills for form analysis</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <p className="font-semibold text-gray-900">❤️ Heart Rate Monitor</p>
+              <p className="text-sm text-gray-600">Track fitness during training</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <p className="font-semibold text-gray-900">👥 Team Challenges</p>
+              <p className="text-sm text-gray-600">Compete as groups</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <p className="font-semibold text-gray-900">🎨 Custom Course Builder</p>
+              <p className="text-sm text-gray-600">Design your own layouts</p>
+            </div>
+          </div>
+
+          <p className="text-gray-600 mb-6">
+            Create an account now to get early access to new features as they launch.
+          </p>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 bg-linear-to-r from-indigo-600 to-purple-600">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            Ready to Get Faster?
+          </h2>
+          <p className="text-xl text-white/90 mb-8">
+            Join athletes training smarter with Agility Engine.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/agility/auth/signup" className="px-8 py-4 bg-white text-indigo-600 text-lg font-bold rounded-xl hover:bg-gray-100 transition shadow-lg">
+              Create Free Account
+            </Link>
+            <Link href="/agility/drill/setup" className="px-8 py-4 bg-white/10 backdrop-blur text-white border-2 border-white text-lg font-bold rounded-xl hover:bg-white/20 transition">
+              Try Without Account
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-2xl">⚡</span>
+                <span className="text-lg font-bold text-gray-900">Agility Engine</span>
+              </div>
+              <p className="text-sm text-gray-600">
+                Speed training for athletes of all levels.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-gray-900 mb-3">Product</h4>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li><Link href="/agility/drill/setup" className="hover:text-gray-900">Drills</Link></li>
+                <li><Link href="/agility/leaderboard" className="hover:text-gray-900">Leaderboard</Link></li>
+                <li><Link href="#" className="hover:text-gray-900">Pricing</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-gray-900 mb-3">Company</h4>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li><Link href="#" className="hover:text-gray-900">About</Link></li>
+                <li><Link href="#" className="hover:text-gray-900">Blog</Link></li>
+                <li><Link href="#" className="hover:text-gray-900">Contact</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-gray-900 mb-3">Legal</h4>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li><Link href="#" className="hover:text-gray-900">Privacy</Link></li>
+                <li><Link href="#" className="hover:text-gray-900">Terms</Link></li>
+                <li><Link href="#" className="hover:text-gray-900">Security</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-600">
+            <p>© 2025 Agility Engine. MIT License.</p>
+            <div className="flex gap-6">
+              <a href="https://github.com" className="hover:text-gray-900">GitHub</a>
+              <a href="https://twitter.com" className="hover:text-gray-900">Twitter</a>
+              <a href="https://discord.com" className="hover:text-gray-900">Discord</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
