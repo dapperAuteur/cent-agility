@@ -159,7 +159,7 @@ export default function DrillSetupPage() {
                 <input
                   type="number" min="1" max="10" value={config.sets}
                   onChange={(e) => setConfig({ ...config, sets: parseInt(e.target.value) })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none text-base"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none text-base text-gray-800"
                 />
               </div>
               <div>
@@ -167,7 +167,7 @@ export default function DrillSetupPage() {
                 <input
                   type="number" min="1" max="50" value={config.repsPerSet}
                   onChange={(e) => setConfig({ ...config, repsPerSet: parseInt(e.target.value) })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none text-base"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none text-base text-gray-800"
                 />
               </div>
               <div>
@@ -175,7 +175,7 @@ export default function DrillSetupPage() {
                 <input
                   type="number" min="10" max="300" step="5" value={config.restBetweenSets}
                   onChange={(e) => setConfig({ ...config, restBetweenSets: parseInt(e.target.value) })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none text-base"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none text-base text-gray-800"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -184,7 +184,7 @@ export default function DrillSetupPage() {
                   <input
                     type="number" min="1" max="10" value={config.minStartDelay}
                     onChange={(e) => setConfig({ ...config, minStartDelay: parseInt(e.target.value) })}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none text-base"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none text-base text-gray-800"
                   />
                 </div>
                 <div>
@@ -192,7 +192,7 @@ export default function DrillSetupPage() {
                   <input
                     type="number" min="1" max="10" value={config.maxStartDelay}
                     onChange={(e) => setConfig({ ...config, maxStartDelay: parseInt(e.target.value) })}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none text-base"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none text-base text-gray-800"
                   />
                 </div>
               </div>
