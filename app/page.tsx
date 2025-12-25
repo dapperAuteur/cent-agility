@@ -8,10 +8,12 @@ export default function LandingPage() {
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">⚡</span>
-            <span className="text-xl font-bold text-gray-900">Agility Engine</span>
-          </div>
+          <Link href="/" className="text-gray-600 hover:text-gray-900 font-semibold text-sm sm:text-base">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">⚡</span>
+              <span className="text-xl font-bold text-gray-900">Agility Engine</span>
+            </div>
+          </Link>
           <div className="flex items-center gap-3 sm:gap-4">
             <Link href="/agility/auth/signin" className="text-gray-600 hover:text-gray-900 font-semibold text-sm sm:text-base">
               Sign In
